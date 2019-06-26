@@ -5,7 +5,7 @@ east
 import yaml
 import logging
 import datetime
-
+import io
 
 class Logger:
     """自定义封装logging模块"""
@@ -41,7 +41,7 @@ class Logger:
         :return: 返回配置中读取的level
         """
         try:
-            with open('./config.yaml', 'r', encoding='utf-8') as f:
+            with io.open('./config.yaml', 'r', encoding='utf-8') as f:
                 global config_data
                 config_data = yaml.load(f, Loader=yaml.FullLoader)
         except IOError:
