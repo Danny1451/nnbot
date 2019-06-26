@@ -1,14 +1,15 @@
+# coding=UTF-8
 """
 运行脚本
 """
 
-import SnrksMonitor.wechatnotice as notice
+# from wechatnotice import notice
 import time
 import yaml
-from SnrksMonitor.log import Logger
-from SnrksMonitor.appspider import AppSpiders
-from SnrksMonitor.db import db as database
-
+from log import Logger
+from appspider import AppSpiders
+from db import db as database
+from new_ios_push import Push
 log = Logger().log()
 
 

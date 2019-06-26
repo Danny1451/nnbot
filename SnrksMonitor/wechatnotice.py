@@ -1,9 +1,10 @@
+# coding=UTF-8
 """
 east
 """
 import itchat
 import os
-from SnrksMonitor.log import Logger
+from log import Logger
 
 log = Logger().log()
 

@@ -3,7 +3,7 @@ import json
 import sqlite3
 
 def check_start_selldate():
-    url = 'https://api.nike.com/snkrs/content/v1/?country=JP&language=ja&offset=0&orderBy=published'
+    url = 'https://api.nike.com/snkrs/content/v1/?country=CN&language=zh-Hans&offset=0&orderBy=published'
     r = json.loads(requests.get(url).text)
     for item in r["threads"]:
         try:

@@ -1,3 +1,4 @@
+# coding=UTF-8
 """
 @auther:EAST
 crawl data from app
@@ -13,8 +14,8 @@ import json
 import random
 import yaml
 import time
-from SnrksMonitor.log import Logger
-from SnrksMonitor.db import db
+from log import Logger
+from db import db
 import requests
 import requests.adapters
 import traceback

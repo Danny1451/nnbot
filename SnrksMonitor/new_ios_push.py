@@ -1,10 +1,11 @@
+# coding=UTF-8
 """
 author:hefeng
 function:push message to ios users with the help of BARK
 """
 import requests
 import yaml
-from SnrksMonitor.log import Logger
+from log import Logger
 
 log = Logger().log()
 
@@ -14,10 +15,15 @@ class PushToIos:
         self.push_url = "https://api.day.app/"
         self.push_list = [
             {
-                "key": '123',
-                "name": "east"
+                "key": 'HQ92qeFotCGhWvo4j8BJCW',
+                "name": "Max"
+            },
+            {
+                "key":"nBZbFqaDWmqZcxdYi8ds8W",
+                "name":"6sp"
             }
         ]
+
 
     def push(self, message):
         for member in self.push_list:

@@ -1,9 +1,10 @@
+# coding=UTF-8
 """
 create to db
 """
 import sqlite3
 import yaml
-from SnrksMonitor.log import Logger
+from log import Logger
 
 log = Logger().log()
 
