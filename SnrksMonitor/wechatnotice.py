@@ -25,7 +25,7 @@ class wechat():
 		# 在群聊中发送推送并且删除图片
 		if type(msg) == list:
 			for item in msg:
-				log.info('开始向群聊中发送消息')
+				log.info(u'开始向群聊中发送消息')
 				if item['shoePublishTime'] is None:
 					message = '国家:[{}] [{}] '.format (item ['shoeCountry'], item ['shoeName'])
 				else:
@@ -38,19 +38,19 @@ class wechat():
 							                    item['shoeSize'])
 				itchat.send_msg(msg=message, toUserName=user)
 				itchat.send_image(fileDir=item['shoeImage'], toUserName=user)
-				log.info('推送完成')
+				log.info(u'推送完成')
 				# try: # 删除图片
-				# 	log.info('delete image:%s' % item['shoeImageUrl'])
+				# 	log.info(u'delete image:%s' % item['shoeImageUrl'])
 				# 	os.remove(path=item['shoeImageUrl'])
 				# except IOError:
 				# 	log.error('delete failed')
 		elif type(msg) == str:
-			log.info('请传入list')
+			log.info(u'请传入list')
 		elif type(msg) == dict:
 			log.info ('请传入list')
 		else:
 			itchat.send_msg(msg=msg, toUserName=user)
-		log.info('message has been send, waiting for next time to start')
+		log.info(u'message has been send, waiting for next time to start')
 
 	def getChatRoomId(self, nickname):
 		# 获取群聊的username
@@ -60,7 +60,7 @@ class wechat():
 		for item in groupContent:
 			if item['NickName'] == nickname:
 				chatroomid = item['UserName']
-		log.info('get chat room “%s” id successfully的ID：%s' % (nickname, chatroomid))
+		log.info(u'get chat room “%s” id successfully的ID：%s' % (nickname, chatroomid))
 		return chatroomid
 
 	def init(self,groupname):

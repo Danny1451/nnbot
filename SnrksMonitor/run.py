@@ -2,8 +2,6 @@
 """
 运行脚本
 """
-
-# from wechatnotice import notice
 import time
 import yaml
 import io
@@ -12,7 +10,6 @@ from appspider import AppSpiders
 from db import db as database
 from new_ios_push import PushToIos
 log = Logger().log()
-
 
 class Utils:
     @staticmethod
@@ -28,12 +25,12 @@ class Utils:
             print('open config failed')
         return configdata
 
-
 def run():
-    log.info('East SnrksMonitor is starting')
+    log.info(u'East SnrksMonitor is starting 开始')
     # 从配置中获取超时，爬虫间隔，微信群组名字
     u = Utils().readyaml()
     # timeout = u ['maxtimeout']
+    log.info(u'East SnrksMonitor is starting 2')
     sleeptime = u['monitortime']
     chatroomnickname = u['chatroomnickname']
 
@@ -46,10 +43,11 @@ def run():
     shoesdata = AppSpiders()
     db = database()
     while True:
-        log.info('第{}次开始'.format(num))
-        NewData = shoesdata.getNewShoesData()  # 获取到最新的数据
+        log.info(u'第{}次开始'.format(num))
+        # NewData = shoesdata.getNewShoesData()  # 获取到最新的数据
+        NewData = shoesdata.spiderDate('cn')  # 获取到最新的数据
         result = shoesdata.updateCheck(data=NewData)  # 获取到是否有更新和更新数据
-        log.info('第{}次是否有更新：{}'.format(num, result['isUpdate']))
+        log.info(u'第{}次是否有更新：{}'.format(num, result['isUpdate']))
         # 如果有更新则对更新表进行操作，并发送推送
         if result['isUpdate'] is True:
             # 初始化鞋子，删除更新表
@@ -61,13 +59,18 @@ def run():
             updateShoesCodeList = []
             for updatedata in updateData:
                 updateShoesCodeList.append(updatedata['shoeStyleCode'])
-            log.info('第{}次更新的货号：{}'.format(num, updateShoesCodeList))
+            log.info(u'第{}次更新的货号：{}'.format(num, updateShoesCodeList))
             # push.sendMessage(user=chatroomid, msg=updateData)
+            
             # 把有更新的数据插入鞋子表
             db.updateShoesTable(data=updateData)
         else:
             # 是否需要操作？
-            log.info('第{}次没有更新，进入暂停'.format(num))
-        log.info('第{}次结束'.format(num))
+            log.info(u'第{}次没有更新，进入暂停'.format(num))
+        log.info(u'第{}次结束'.format(num))
         num += 1
         time.sleep(sleeptime)  # 暂停时间
+
+if __name__ == '__main__':
+    log.info('start')
+    run()

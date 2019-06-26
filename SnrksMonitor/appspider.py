@@ -67,11 +67,12 @@ class AppSpiders:
         }
         proxy = {
         }
-        log.info('最新的数据获取中...')
+        log.info(u'最新的数据获取中...')
         url = self.url[country]
         global shoes
         try:
             responce = requests.get(url, headers=header)
+            log.info(responce)
             responceJson = json.loads(responce.text)
             shoes = responceJson['threads']
         except Exception as e:
@@ -79,13 +80,13 @@ class AppSpiders:
             isSuccess = False
             failedNum = 1
             while isSuccess == False:
-                log.info('获取{}接口失败，正在重试第{}次......'.format(country, failedNum))
-                log.debug('以下为详细错误：{}'.format(ex))
+                log.info(u'获取{}接口失败，正在重试第{}次......'.format(country, failedNum))
+                log.debug(u'以下为详细错误：{}'.format(ex))
                 responce = requests.get(url, headers=self.headers)
                 responceJson = json.loads(responce.text)
                 if 'threads' in responceJson.keys():
                     shoes = responceJson['threads']
-                    log.info('重试成功，正在恢复')
+                    log.info(u'重试成功，正在恢复')
                     isSuccess = True
                 elif failedNum == 60:
                     shoes = []
@@ -109,6 +110,7 @@ class AppSpiders:
                     'shoePrice': '',
                     'shoeSize': '',
                     'shoePublishTime': '',
+                    'lastUpdatedTime': '',
                     'shoeCountry': country,
                     'shoeUpdateTime': ''
                 }
@@ -125,7 +127,9 @@ class AppSpiders:
                 except KeyError:
                     selector = None
                 t = product['startSellDate'][:19].replace('T', ' ')
+                t2 = shoe['lastUpdatedTime'][:19].replace('T', ' ')
                 shoeTime = self.changeTime(t=t, c=country)
+                updateTime = self.changeTime(t=t2,c=country)
                 shoeDict = {
                     'id': None,
                     'shoeName': shoe_name,
@@ -136,12 +140,13 @@ class AppSpiders:
                     'shoeSelectMethod': selector,
                     'shoePrice': product['price']['msrp'],
                     'shoeSize': shoeSize,
+                    'lastUpdatedTime': updateTime,
                     'shoePublishTime': shoeTime,
                     'shoeCountry': country,
                     'shoeUpdateTime': shoe['lastUpdatedTime']
                 }
             shoesData.append(shoeDict)
-        log.info('最新的数据获取完成')
+        log.info(u'最新的数据获取完成')
         return shoesData
 
     def getNewShoesData(self):
@@ -185,7 +190,7 @@ class AppSpiders:
         :param data: 传入需要进行对比的数据
         :return: 返回一个更新的数组和是否更新，数组中存的是鞋子的货号
         """
-        log.info('数据更新确认中...')
+        log.info(u'数据更新确认中...')
         fetchSql = """SELECT shoeStyleCode,shoename,shoeCountry FROM shoes"""
         OldData = self.db.fetchData(sql=fetchSql, c=None)
         if len(OldData) == 0:
@@ -242,7 +247,7 @@ class AppSpiders:
                 'isUpdate': isUpdate,
                 'data': updateData
             }
-            log.info('数据更新确认完成')
+            log.info(u'数据更新确认完成')
         return message
 
     def getCountryData(self, country):
@@ -261,7 +266,7 @@ class AppSpiders:
         return CodeData, NameData
 
     def insertToDb(self, data):
-        log.info('向更新表中插入数据中...')
+        log.info(u'向更新表中插入数据中...')
         insertSql = """INSERT INTO "update" values (?,?,?,?,?,?,?,?,?,?,?)"""
         insertData = []
         for item in data:
@@ -276,16 +281,17 @@ class AppSpiders:
                 item['shoePrice'],
                 item['shoeSize'],
                 item['shoePublishTime'],
+                item['lastUpdatedTime'],
                 item['shoeCountry']
             )
             insertData.append(dataturple)
         self.db.insertData(sql=insertSql, d=insertData, path=None)
-        log.info('向更新表中插入数据结束')
+        log.info(u'向更新表中插入数据结束')
 
     def initDB(self):
         deleteSql = """DELETE FROM "update" where id < 100000"""
         self.db.deleteData(sql=deleteSql)
-        log.info('初始化更新表完成...')
+        log.info(u'初始化更新表完成...')
 
     def download_imgage(self, url, filename):
         """
@@ -294,29 +300,29 @@ class AppSpiders:
         :param filename: 需要存放在本地的图片名字
         :return: 返回本地的图片地址
         """
-        log.debug('start download image：%s' % filename)
+        log.debug(u'start download image：%s' % filename)
         fileurl = './img/{}.jpg'.format(filename)
-        try:
+        # try:
 
-            r = requests.get(url=url)
-            with open(fileurl, 'wb') as f:
-                f.write(r.content)
-                f.close()
-        except Exception:
-            log.error('failed to download picture')
-            with open('./img/go.jpg', 'wb') as fa:
-                content = fa.read()
-                with open(fileurl, 'wb') as fb:
-                    fb.write(content)
-                    fb.close()
-                fa.close()
+        #     r = requests.get(url=url)
+        #     with open(fileurl, 'wb') as f:
+        #         f.write(r.content)
+        #         f.close()
+        # except Exception:
+        #     log.error('failed to download picture')
+        #     with open('./img/go.jpg', 'wb') as fa:
+        #         content = fa.read()
+        #         with open(fileurl, 'wb') as fb:
+        #             fb.write(content)
+        #             fb.close()
+        #         fa.close()
         return fileurl
 
 
 if __name__ == '__main__':
     shoesdata = AppSpiders()  # 实例化鞋子爬虫的类
     shoesdata.initDB()  # 初始化
-    NewData = shoesdata.spiderDate()
+    NewData = shoesdata.spiderDate('cn')
     result = shoesdata.updateCheck(data=NewData)
     print(result)
     if result['isUpdate'] is True:

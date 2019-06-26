@@ -27,7 +27,12 @@ class PushToIos:
 
     def push(self, message):
         for member in self.push_list:
-            msg = "{self.push_url}{member['key']}/{message}"
+            msg ='{}{}/{}'.format(self.push_url,member['key'],message)
+            # msg = "{self.push_url}{member['key']}/{message}"
             requests.get(msg)
-            log.info("推送成功--{member['name']}/{msg}")
+            log.info(u"推送成功--{}/{}".format(member['name'],msg))
+
+if __name__ == '__main__':
+    pt = PushToIos()
+    pt.push('测试')
 

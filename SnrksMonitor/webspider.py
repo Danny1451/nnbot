@@ -49,7 +49,7 @@ class WebSpider:
                     fb.close()
                 fa.close()
         # print('图片保存地址为：%s' % fileurl)
-        # log.info('the image save in：%s' % fileurl)
+        # log.info(u'the image save in：%s' % fileurl)
 
     def spider(self, url, useragent, timeout):
         # 爬取snrks网站内容
@@ -61,15 +61,15 @@ class WebSpider:
         }
         # logging.log('start spiders')
         # print('开始请求nike网站')
-        log.info('start connect to nike')
+        log.info(u'start connect to nike')
         r = requests.get(url=url, headers=header, timeout=timeout)
         etree = html.etree
         s = etree.HTML(r.text)
         # 以下为对nike网站的分析
-        log.info("start analysis nike'website")
+        log.info(u"start analysis nike'website")
         shoes_div = s.xpath('//figure[@class="d-md-h ncss-col-sm-12 va-sm-t pb0-sm prl0-sm"]')
         fileindex = 1  # 计数
-        log.info("get shoes' data")
+        log.info(u"get shoes' data")
         for shoes in shoes_div:
             # shoes_name = shoes.xpath('.//h3[@class="ncss-brand u-uppercase mb-1-sm fs16-sm"]/text()')[1] # 鞋名
             shoes_link = shoes.xpath('.//a[@class="card-link d-sm-b"]/@href')  # 鞋子详情连接
@@ -94,14 +94,14 @@ class WebSpider:
             })
             self.datadict.append(shoes_dict)
             fileindex += 1
-            log.info('get [{}] shoes'.format(shoes_sale_num))
+            log.info(u'get [{}] shoes'.format(shoes_sale_num))
 
     def data_analysis(self):
         """
         分析是否有更新
         :return: 返回更新数据
         """
-        log.info('start checking whether updated or not')
+        log.info(u'start checking whether updated or not')
         update = []
         if len(self.history) == 0:
             for shoes in self.datadict:
@@ -116,7 +116,7 @@ class WebSpider:
             self.history = self.datadict
             self.datadict = []
 
-        log.info('the number of updated:%s' % len(update))
+        log.info(u'the number of updated:%s' % len(update))
         return update
 
     def get_sale_num(self, sc):
@@ -150,7 +150,7 @@ class WebSpider:
         try:
             r = requests.get(url=url, headers=header, timeout=timeout)
         except Exception:
-            log.info('connect to product detail failed')
+            log.info(u'connect to product detail failed')
             price = '暂无'
         etree = html.etree
         s = etree.HTML(r.text)

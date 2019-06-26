@@ -38,13 +38,13 @@ if __name__ == '__main__':
 	start = True
 	while start:
 		try:
-			log.info('运行增加ip......')
+			log.info(u'运行增加ip......')
 			run_add_pool()
-			log.info('进入休眠30s')
+			log.info(u'进入休眠30s')
 			time.sleep(10)
-			log.info('运行检查数据库ip....')
+			log.info(u'运行检查数据库ip....')
 			run_check_pool()
-			log.info('进入休眠20s')
+			log.info(u'进入休眠20s')
 			time.sleep(10)
 		except Exception as e:
-			log.info('error:{}'.format(traceback.format_exc()))
+			log.info(u'error:{}'.format(traceback.format_exc()))

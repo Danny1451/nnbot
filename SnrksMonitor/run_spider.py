@@ -29,7 +29,7 @@ class RunSpider:
         获取最新的数据
         :return:最新的数据
         """
-        log.info("开始爬取最新的数据")
+        log.info(u"开始爬取最新的数据")
         origin_data = self.spider.spiderDate(district)
         # print(origin_data)
         data = self.spider.updateCheck(origin_data)
@@ -38,14 +38,14 @@ class RunSpider:
             self.data.append(data)
             # print(data)
         else:
-            log.info("本次没有更新")
+            log.info(u"本次没有更新")
 
     def insert_db(self):
         """
         插入数据库
         :return:
         """
-        log.info("重新数据库初始化...")
+        log.info(u"重新数据库初始化...")
         self.spider.initDB()
         for item in self.data:
             self.db.updateShoesTable(data=item["data"])
@@ -55,7 +55,7 @@ class RunSpider:
         推送
         :return:
         """
-        log.info("推送中...")
+        log.info(u"推送中...")
         if len(self.data) == 0:
             self.Push.push('test empty')
         else:

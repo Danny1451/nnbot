@@ -19,7 +19,7 @@ class db:
             configdata = yaml.load(f, Loader=yaml.FullLoader)
         except IOError:
             # logging.log('open config failed')
-            log.info('open config failed')
+            log.info(u'open config failed')
 
         self.databasePath = configdata['db']['db_path']
         self.table_name = configdata['db']['table_name']
@@ -56,11 +56,11 @@ class db:
             cu = self.getCursor(conn)
             cu.execute(sql)
             conn.commit()
-            log.info('数据库创建成功')
+            log.info(u'数据库创建成功')
             cu.close()
             conn.close()
         else:
-            log.info('sql不正确')
+            log.info(u'sql不正确')
 
     def dropTable(self, table, path):
         """
@@ -72,7 +72,7 @@ class db:
         dropSql = """DROP TABLE '{}' """.format(table)
         cu.execute(dropSql)
         conn.commit()
-        log.info('数据库表{}删除成功'.format(table))
+        log.info(u'数据库表{}删除成功'.format(table))
         cu.close()
         conn.close()
 
@@ -92,11 +92,11 @@ class db:
                     conn.commit()
                 cu.close()
                 conn.close()
-                log.info('数据库数据插入成功')
+                log.info(u'数据库数据插入成功')
             else:
-                log.info('没有数据')
+                log.info(u'没有数据')
         else:
-            log.info('没有sql')
+            log.info(u'没有sql')
 
     def fetchData(self, sql, c):
         """
@@ -112,7 +112,7 @@ class db:
             conn.close()
             return value
         else:
-            log.info('sql为空')
+            log.info(u'sql为空')
             return 'failed'
 
     def deleteData(self, sql, Path=None):
@@ -130,9 +130,9 @@ class db:
             conn.commit()
             cu.close()
             conn.close()
-            log.info('数据库中数据删除成功')
+            log.info(u'数据库中数据删除成功')
         else:
-            log.info('sql为空')
+            log.info(u'sql为空')
 
     def init_ippool(self, path=None):
         """
@@ -170,9 +170,9 @@ class db:
             conn.commit()
             cu.close()
             conn.close()
-            log.info('数据库中数据更新成功')
+            log.info(u'数据库中数据更新成功')
         else:
-            log.info('sql为空')
+            log.info(u'sql为空')
 
     def deleteFromIpTable(self, ids, path=None):
         """
@@ -197,6 +197,7 @@ class db:
                             'shoePrice' varchar (10),
                             'shoeSize' varchar (100),
                             'shoePublishTime' varchar (100),
+                            'lastUpdatedTime' varchar (100),
                             'shoeCountry' varchar(10)
                             )"""
         self.createTable(path=None, sql=createTableSql)
@@ -207,8 +208,8 @@ class db:
         :param data:
         :return:
         """
-        log.info('更新的鞋子数据插入中')
-        insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?,?,?)"""
+        log.info(u'更新的鞋子数据插入中')
+        insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?,?,?,?)"""
         insertData = []
         # 把传进来的字典数据 转成插入数据库的数据tulble
         for item in data:
@@ -223,34 +224,35 @@ class db:
                 item['shoePrice'],
                 item['shoeSize'],
                 item['shoePublishTime'],
+                item['lastUpdatedTime'],
                 item['shoeCountry']
             )
             insertData.append(dataturple)
         self.insertData(sql=insertSql, d=insertData, path=None)
-        log.info('鞋子的最新数据插入成功')
+        log.info(u'鞋子的最新数据插入成功')
 
 
 if __name__ == '__main__':
     db = db()
     # db.dropTable(table='shoes', path=None)
-    db.init_shoes()
+    # db.init_shoes()
     # db.dropTable(table='shoes')
     # db.dropTable(table='update')
     # db.init_shoes()
-    # createTableSql = """CREATE TABLE 'update'(
-    #                             'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-    #                             'shoename' varchar (30),
-    # 		                    'shoeColor' varchar (30),
-    # 		                    'shoeImageUrl' varchar (100),
-    # 		                    'shoeImage' varchar(100),
-    # 		                    'shoeStyleCode' varchar (50),
-    # 		                    'shoeSelectMethod' varchar (20),
-    #                             'shoePrice' varchar (10),
-    #                             'shoeSize' varchar (100),
-    #                             'shoePublishTime' varchar (100),
-    #                             'shoeCountry' varchar(10)
-    #                             )"""
-    # db.createTable(c=None, sql= createTableSql)
+    createTableSql = """CREATE TABLE 'update'(
+                                'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+                                'shoename' varchar (30),
+    		                    'shoeColor' varchar (30),
+    		                    'shoeImageUrl' varchar (100),
+    		                    'shoeImage' varchar(100),
+    		                    'shoeStyleCode' varchar (50),
+    		                    'shoeSelectMethod' varchar (20),
+                                'shoePrice' varchar (10),
+                                'shoeSize' varchar (100),
+                                'shoePublishTime' varchar (100),
+                                'shoeCountry' varchar(10)
+                                )"""
+    db.createTable(path=None, sql= createTableSql)
     # db.init()
     # insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?)"""
     # insertData = [
@@ -266,4 +268,4 @@ if __name__ == '__main__':
     #
     # fetchSql = """SELECT * FROM shoes"""
     # data = db.fetchData(sql=fetchSql, c=None)
-    # log.info(data)
+    # log.info(udata)
