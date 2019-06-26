@@ -9,7 +9,7 @@ import yaml
 from log import Logger
 from appspider import AppSpiders
 from db import db as database
-from new_ios_push import Push
+from new_ios_push import PushToIos
 log = Logger().log()
 
 
