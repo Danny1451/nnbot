@@ -6,6 +6,7 @@
 # from wechatnotice import notice
 import time
 import yaml
+import io
 from log import Logger
 from appspider import AppSpiders
 from db import db as database
@@ -19,7 +20,7 @@ class Utils:
         # read config from yaml document
         file = './config.yaml'
         try:
-            f = open(file, 'r', encoding='UTF-8')
+            f = io.open(file, 'r', encoding='UTF-8')
             global configdata
             configdata = yaml.load(f)
         except IOError:

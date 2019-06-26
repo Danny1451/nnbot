@@ -2,7 +2,7 @@
 """
 east
 """
-from SnrksMonitor.run import run
+from run import run
 
 
 if __name__ == '__main__':

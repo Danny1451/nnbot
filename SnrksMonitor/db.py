@@ -4,6 +4,7 @@ create to db
 """
 import sqlite3
 import yaml
+import io
 from log import Logger
 
 log = Logger().log()
@@ -13,7 +14,7 @@ class db:
     def __init__(self):
         file = './config.yaml'
         try:
-            f = open(file, 'r', encoding='UTF-8')
+            f = io.open(file, 'r', encoding='UTF-8')
             global configdata
             configdata = yaml.load(f, Loader=yaml.FullLoader)
         except IOError:

@@ -14,6 +14,7 @@ import json
 import random
 import yaml
 import time
+import io
 from log import Logger
 from db import db
 import requests
@@ -47,7 +48,7 @@ class AppSpiders:
         # read config from yaml document
         file = './config.yaml'
         try:
-            f = open(file, 'r', encoding='UTF-8')
+            f = io.open(file, 'r', encoding='UTF-8')
             global configdata
             configdata = yaml.load(f, Loader=yaml.FullLoader)
         except IOError:
