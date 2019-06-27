@@ -158,7 +158,7 @@ class db:
         inserSql = """INSERT INTO 'ips' values (?,?,?,?,?)"""
         self.insertData(d=data, path=path, sql=inserSql)
 
-    def updateTable(self, sql, path):
+    def updateTable(self, sql, Path):
         """
         更新数据
         :return:
@@ -198,18 +198,43 @@ class db:
                             'shoeSize' varchar (100),
                             'shoePublishTime' varchar (100),
                             'lastUpdatedTime' varchar (100),
+                            'merchStatus' varchar (50),
                             'shoeCountry' varchar(10)
                             )"""
         self.createTable(path=None, sql=createTableSql)
 
-    def updateShoesTable(self, data):
+    def init_update(self):
+        createTableSql = """CREATE TABLE 'update'(
+                                'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+                                'shoename' varchar (30),
+                                'shoeColor' varchar (30),
+                                'shoeImageUrl' varchar (100),
+                                'shoeImage' varchar(100),
+                                'shoeStyleCode' varchar (50),
+                                'shoeSelectMethod' varchar (20),
+                                'shoePrice' varchar (10),
+                                'shoeSize' varchar (100),
+                                'shoePublishTime' varchar (100),
+                                'lastUpdatedTime' varchar (100),
+                                'merchStatus' varchar (50),
+                                'shoeCountry' varchar(10)
+                                )"""
+        self.createTable(path=None, sql= createTableSql)
+
+    def queueShoeData(self,country,shoeStyleCode):
+        fetchsql = """SELECT id,shoename,shoeStyleCode,shoeSize,lastUpdatedTime,merchStatus FROM shoes where shoeCountry ='{}' and shoeStyleCode = '{}' """.format(country,shoeStyleCode)
+        shoeData = self.fetchData(sql=fetchsql, c=None)
+        return shoeData[0]
+
+    def insertShoesTable(self, data):
         """
         对鞋子表进行更新
         :param data:
         :return:
         """
         log.info(u'更新的鞋子数据插入中')
-        insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?,?,?,?)"""
+        log.info(data)
+        insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?,?,?,?,?)"""
         insertData = []
         # 把传进来的字典数据 转成插入数据库的数据tulble
         for item in data:
@@ -225,6 +250,7 @@ class db:
                 item['shoeSize'],
                 item['shoePublishTime'],
                 item['lastUpdatedTime'],
+                item['merchStatus'],
                 item['shoeCountry']
             )
             insertData.append(dataturple)
@@ -232,27 +258,78 @@ class db:
         log.info(u'鞋子的最新数据插入成功')
 
 
+    def updateSingleShoe(self,data):
+        if data['id'] == None:
+            log.info(u'鞋子的最新更新插入失败')
+            log.info(data)
+            return
+                
+        updateSql = """UPDATE shoes SET shoeSize = "{}", lastUpdatedTime = "{}" ,merchStatus = "{}" WHERE id = {}""".format(
+        data['shoeSize'],data['lastUpdatedTime'],data['merchStatus'],data['id'])
+        log.info(updateSql)
+        self.updateTable(updateSql,Path=None)
+
+    def insertSingleShoe(self,data):
+        self.insertShoesTable([data])
+
+    def updateShoesTable(self, data):
+        log.info(u'更新的鞋子数据中')
+        insertData = []
+        # 把传进来的字典数据 转成插入数据库的数据tulble
+        for item in data:
+            if item['id'] == None:
+                self.insertSingleShoe(item)
+            else:
+                self.updateSingleShoe(item)
+        log.info(u'鞋子的最新更新插入成功')
+        
+
 if __name__ == '__main__':
     db = db()
     # db.dropTable(table='shoes', path=None)
     # db.init_shoes()
-    # db.dropTable(table='shoes')
-    # db.dropTable(table='update')
+    # db.init_update()
+
+    # shoename,shoeStyleCode,shoeSize,lastUpdatedTime,merchStatus = db.queueShoeData('cn','CJ6108-300')
+    # log.info(lastUpdatedTime)
+
+
+    updateData = [{
+                    'id': 2,
+                    'shoeName': 'acv',
+                    'shoeImageUrl': 'https://23123123',
+                    'shoeImage': None,
+                    'shoeColor': '',
+                    'shoeStyleCode': '',
+                    'shoeSelectMethod': '',
+                    'shoePrice': '',
+                    'shoeSize': '32',
+                    'shoePublishTime': '2019-2-19 9:00',
+                    'lastUpdatedTime': '2019-2-19 9:00',
+                    'shoeCountry': 'cb',
+                    'shoeUpdateTime': '',
+                    'merchStatus':''
+                }]
+
+    db.updateShoesTable(updateData)
+
+    # db.dropTable(table='shoes',path=None)
+    # db.dropTable(table='update',path=None)
     # db.init_shoes()
-    createTableSql = """CREATE TABLE 'update'(
-                                'id' INTEGER PRIMARY KEY AUTOINCREMENT,
-                                'shoename' varchar (30),
-    		                    'shoeColor' varchar (30),
-    		                    'shoeImageUrl' varchar (100),
-    		                    'shoeImage' varchar(100),
-    		                    'shoeStyleCode' varchar (50),
-    		                    'shoeSelectMethod' varchar (20),
-                                'shoePrice' varchar (10),
-                                'shoeSize' varchar (100),
-                                'shoePublishTime' varchar (100),
-                                'shoeCountry' varchar(10)
-                                )"""
-    db.createTable(path=None, sql= createTableSql)
+    # createTableSql = """CREATE TABLE 'update'(
+    #                             'id' INTEGER PRIMARY KEY AUTOINCREMENT,
+    #                             'shoename' varchar (30),
+    # 		                    'shoeColor' varchar (30),
+    # 		                    'shoeImageUrl' varchar (100),
+    # 		                    'shoeImage' varchar(100),
+    # 		                    'shoeStyleCode' varchar (50),
+    # 		                    'shoeSelectMethod' varchar (20),
+    #                             'shoePrice' varchar (10),
+    #                             'shoeSize' varchar (100),
+    #                             'shoePublishTime' varchar (100),
+    #                             'shoeCountry' varchar(10)
+    #                             )"""
+    # db.createTable(path=None, sql= createTableSql)
     # db.init()
     # insertSql = """INSERT INTO shoes values (?,?,?,?,?,?,?,?,?)"""
     # insertData = [

@@ -42,6 +42,7 @@ def run():
     # 实例化爬虫类
     shoesdata = AppSpiders()
     db = database()
+    pt = PushToIos()
     while True:
         log.info(u'第{}次开始'.format(num))
         # NewData = shoesdata.getNewShoesData()  # 获取到最新的数据
@@ -55,15 +56,39 @@ def run():
             # 对更新表进行操作
             updateData = result['data']
             shoesdata.insertToDb(data=updateData)
-            # 给微信群发送推送
+            
             updateShoesCodeList = []
-            for updatedata in updateData:
-                updateShoesCodeList.append(updatedata['shoeStyleCode'])
+            pushData = []
+            for updateDetaildata in updateData:
+                needNotify = True
+                updateShoesCodeList.append(updateDetaildata['shoeStyleCode'] + ' ' +updateDetaildata['info'])
+                shoeDic = {'title':updateDetaildata['shoeName'],'reason':updateDetaildata['info']}
+                if updateDetaildata['info'] == 'Time Update':
+                    if updateDetaildata['merchStatus'] != 'ACTIVE':
+                        needNotify = False
+                    shoeDic['info'] = 'Time Update -' + updateDetaildata['lastUpdatedTime']
+                elif updateDetaildata['info'] == 'MerchStatus Update':
+                    shoeDic['info'] = 'MerchStatus Update -' + updateDetaildata['merchStatus']
+                elif updateDetaildata['info'] == 'SizeStock Update':
+                    shoeDic['info'] = 'SizeStock Update -' + updateDetaildata['shoeSize']
+                elif updateDetaildata['info'] == 'Arrival Update':
+                    shoeDic['info'] = 'New Arrival -' + updateDetaildata['merchStatus']
+                else:
+                    shoeDic['info'] = 'UnKnown'
+
+                if needNotify == True:
+                    pt.notifyUpdateInfo(shoeDic)
+                else:
+                    log.info(u"Pass Time Update, Name: {} ,State : {} , Time :{}".format(updateDetaildata['shoeName'],updateDetaildata['merchStatus'],updateDetaildata['lastUpdatedTime']))
+
+                    
             log.info(u'第{}次更新的货号：{}'.format(num, updateShoesCodeList))
             # push.sendMessage(user=chatroomid, msg=updateData)
             
             # 把有更新的数据插入鞋子表
-            db.updateShoesTable(data=updateData)
+            db.updateShoesTable(data=updateData)    
+            
+
         else:
             # 是否需要操作？
             log.info(u'第{}次没有更新，进入暂停'.format(num))

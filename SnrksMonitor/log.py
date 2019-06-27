@@ -28,9 +28,9 @@ class Logger:
         console_log.setLevel(logger_console_level)
         console_log.setFormatter(fomatter)
 
-        # if self.logger.hasHandlers() is False:
-        self.logger.addHandler(file_log)
-        self.logger.addHandler(console_log)
+        if not self.logger.handlers:
+            self.logger.addHandler(file_log)
+            self.logger.addHandler(console_log)
         # self.logger.removeHandler(file_log)
         # self.logger.removeHandler(console_log)
         file_log.close()

@@ -71,6 +71,7 @@ class AppSpiders:
         url = self.url[country]
         global shoes
         try:
+            log.info(u'数据获取成功...')
             responce = requests.get(url, headers=header)
             log.info(responce)
             responceJson = json.loads(responce.text)
@@ -112,7 +113,8 @@ class AppSpiders:
                     'shoePublishTime': '',
                     'lastUpdatedTime': '',
                     'shoeCountry': country,
-                    'shoeUpdateTime': ''
+                    'shoeUpdateTime': '',
+                    'merchStatus':''
                 }
             else:
                 if shoe['name'] is '':
@@ -121,7 +123,8 @@ class AppSpiders:
                     shoe_name = shoe['name']
                 shoeSize = ''
                 for sku in product['skus']:
-                    shoeSize = '{}|{}'.format(shoeSize, sku['localizedSize'])
+                    if sku['available']:
+                        shoeSize = '{}|{}'.format(shoeSize, sku['localizedSize'])
                 try:
                     selector = product['selectionEngine']
                 except KeyError:
@@ -143,7 +146,8 @@ class AppSpiders:
                     'lastUpdatedTime': updateTime,
                     'shoePublishTime': shoeTime,
                     'shoeCountry': country,
-                    'shoeUpdateTime': shoe['lastUpdatedTime']
+                    'shoeUpdateTime': shoe['lastUpdatedTime'],
+                    'merchStatus': product['merchStatus']
                 }
             shoesData.append(shoeDict)
         log.info(u'最新的数据获取完成')
@@ -191,13 +195,14 @@ class AppSpiders:
         :return: 返回一个更新的数组和是否更新，数组中存的是鞋子的货号
         """
         log.info(u'数据更新确认中...')
-        fetchSql = """SELECT shoeStyleCode,shoename,shoeCountry FROM shoes"""
+        fetchSql = """SELECT shoeStyleCode,shoename,shoeCountry,shoeSize FROM shoes"""
         OldData = self.db.fetchData(sql=fetchSql, c=None)
         if len(OldData) == 0:
-            self.db.updateShoesTable(data=data)
+            self.db.insertShoesTable(data=data)
             message = {
                 'isUpdate': False,
-                'data': 'no data'
+                'data': 'no data',
+                'info': 'init '
             }
         else:
             CodeData_cn, NameData_cn = self.getCountryData(country='cn')
@@ -205,11 +210,14 @@ class AppSpiders:
             CodeData_de, NameData_de = self.getCountryData(country='de')
             CodeData_jp, NameData_jp = self.getCountryData(country='jp')
             isUpdate = False
+            info = ''
             updateData = []
             # 获取到的新数据按照国区分别进行更新检查
             for newdata in data:
                 if newdata['shoeCountry'] == 'cn':
+
                     if newdata['shoeStyleCode'] not in CodeData_cn or newdata['shoeName'] not in NameData_cn:
+                        newdata['info'] = 'Arrival Update'
                         updateData.append(newdata)
                         # 把更新的鞋子的图片下载到本地并把url改为本地url
                         newdata['shoeImage'] = self.download_imgage(url=newdata['shoeImageUrl'],
@@ -218,7 +226,30 @@ class AppSpiders:
                         isUpdate = True
                     else:
                         # 判断鞋子的last更新时间是否比存在数据库中的更新时间大，以下三国一样的
-                        pass
+                        shoeId,shoename,shoeStyleCode,shoeSize,lastUpdatedTime,merchStatus = self.db.queueShoeData('cn',newdata['shoeStyleCode']) 
+
+                        newUpdateTime = newdata['lastUpdatedTime']
+                        newShoeSize = newdata['shoeSize']
+                        newMerchStatus = newdata['merchStatus']
+                        newdata['id'] = shoeId
+                        if newUpdateTime == lastUpdatedTime:
+                            if newMerchStatus == merchStatus:
+                                if shoeSize == newShoeSize:
+                                    pass
+                                else:
+                                    isUpdate = True
+                                    newdata['info'] = 'SizeStock Update'
+                                    updateData.append(newdata)
+                                    
+                            else:
+                                isUpdate = True
+                                newdata['info'] = 'MerchStatus Update'
+                                updateData.append(newdata)
+                        else:
+                            isUpdate = True
+                            newdata['info'] = 'Time Update'
+                            updateData.append(newdata)
+                          
                 elif newdata['shoeCountry'] == 'us':
                     if newdata['shoeStyleCode'] not in CodeData_us or newdata['shoeName'] not in NameData_us:
                         updateData.append(newdata)
@@ -265,9 +296,10 @@ class AppSpiders:
             NameData.append(data[1])
         return CodeData, NameData
 
+
     def insertToDb(self, data):
         log.info(u'向更新表中插入数据中...')
-        insertSql = """INSERT INTO "update" values (?,?,?,?,?,?,?,?,?,?,?)"""
+        insertSql = """INSERT INTO "update" values (?,?,?,?,?,?,?,?,?,?,?,?,?)"""
         insertData = []
         for item in data:
             dataturple = (
@@ -282,6 +314,7 @@ class AppSpiders:
                 item['shoeSize'],
                 item['shoePublishTime'],
                 item['lastUpdatedTime'],
+                item['merchStatus'],
                 item['shoeCountry']
             )
             insertData.append(dataturple)
